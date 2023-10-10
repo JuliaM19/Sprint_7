@@ -2,22 +2,19 @@ package ya.practicum;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
-import org.apache.http.entity.ContentType;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import ya.practicum.api.Paths;
+import ya.practicum.api.CourierApi;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 @RunWith(Parameterized.class)
 public class CreateOrderTest {
+
+    private final CourierApi courierApi = new CourierApi();
     private String firstName;
     private String lastName;
     private String address;
@@ -38,11 +35,6 @@ public class CreateOrderTest {
         this.deliveryDate = deliveryDate;
         this.comment = comment;
         this.color = color;
-    }
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        RestAssured.baseURI = Paths.BASE_URL;
     }
 
     @Parameterized.Parameters(name = "Создание заказа. " +
@@ -73,11 +65,7 @@ public class CreateOrderTest {
                 this.comment,
                 this.color
         );
-        Response response = given()
-                .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-                .body(order)
-                .when()
-                .post(Paths.ORDER_PATH);
+        Response response = courierApi.createOrder(order);
 
         response.then().assertThat().body("track", notNullValue())
                 .and()
